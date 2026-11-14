@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>ReadSubtitles</string>
+    <key>CFBundleDisplayName</key>
+    <string>ReadSubtitles</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.readsubtitles.app</string>
+    <key>CFBundleExecutable</key>
+    <string>readsubtitles</string>
+    <key>CFBundleVersion</key>
+    <string>0.1.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>13.0</string>
+
+    <!-- Menu bar only: no Dock icon, no app switcher entry. -->
+    <key>LSUIElement</key>
+    <true/>
+
+    <!-- Mandatory. ScreenCaptureKit is purely TCC-gated and the system
+         terminates an app that triggers the Screen Recording prompt without a
+         usage description. -->
+    <key>NSScreenCaptureUsageDescription</key>
+    <string>ReadSubtitles reads the subtitles shown on your screen so they can be spoken aloud.</string>
+</dict>
+</plist>

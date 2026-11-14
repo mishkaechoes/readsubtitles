@@ -1,0 +1,16 @@
+[package]
+name = "readsubtitles-voice"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+objc2.workspace = true
+objc2-foundation.workspace = true
+objc2-avf-audio = { version = "0.3.2", features = ["AVSpeechSynthesis"] }
+ureq = "3.2.1"
+rodio = { version = "0.21.1", default-features = false, features = ["playback", "tracing"] }

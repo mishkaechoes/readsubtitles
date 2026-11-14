@@ -1,0 +1,10 @@
+// Copy to config.js, or let bundle/make-extension.sh write it for you.
+//
+// The real config.js is git-ignored because the token in it is specific to
+// your machine. It is not a secret worth much: it only authorises a caption
+// to be sent to the app over loopback. But a shared token would let any page
+// you visit speak through your app, so each install generates its own.
+const CONFIG = {
+  port: 53117,
+  token: "run bundle/make-extension.sh to generate this",
+};

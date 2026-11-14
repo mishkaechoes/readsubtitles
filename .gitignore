@@ -1,0 +1,15 @@
+# Build output
+/target
+
+# Frames written by --save-frames. These are pictures of your screen, which is
+# the last thing anyone wants to push to a public repository by accident.
+/captures
+
+# Generated per machine: holds the token this install uses to talk to the app.
+extension/config.js
+
+# The speaker-embedding model is ~26 MB and downloaded on demand into
+# Application Support. If one ends up here, it still does not belong in git.
+*.onnx
+
+.DS_Store

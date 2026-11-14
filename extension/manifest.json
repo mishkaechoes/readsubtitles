@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "ReadSubtitles Bridge",
+  "version": "0.1.0",
+  "description": "Sends the captions shown on screen to the ReadSubtitles app, so they can be spoken aloud.",
+  "host_permissions": ["http://127.0.0.1/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.netflix.com/*",
+        "https://www.youtube.com/*",
+        "https://*.disneyplus.com/*",
+        "https://app.primevideo.com/*",
+        "https://www.primevideo.com/*",
+        "https://tv.apple.com/*",
+        "https://*.max.com/*",
+        "https://*.hulu.com/*"
+      ],
+      "js": ["content.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ]
+}

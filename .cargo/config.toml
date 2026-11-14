@@ -1,0 +1,10 @@
+# The `screencapturekit` crate links a Swift shim. Its build script emits a
+# search path under Toolchains/XcodeDefault.xctoolchain, which only exists with
+# a full Xcode install. On a Command Line Tools-only machine the Swift runtime
+# lives elsewhere, so point the linker at it and add the OS Swift runtime to
+# the rpath so the binary can find libswift_Concurrency.dylib at launch.
+[target.aarch64-apple-darwin]
+rustflags = [
+  "-L", "/Library/Developer/CommandLineTools/usr/lib/swift/macosx",
+  "-C", "link-arg=-Wl,-rpath,/usr/lib/swift",
+]

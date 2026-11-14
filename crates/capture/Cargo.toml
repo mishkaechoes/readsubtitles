@@ -1,0 +1,13 @@
+[package]
+name = "readsubtitles-capture"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+screencapturekit.workspace = true
+objc2-core-graphics.workspace = true

@@ -1,0 +1,24 @@
+[workspace]
+resolver = "3"
+members = ["crates/browser", "crates/capture", "crates/ocr", "crates/cues",
+    "crates/diarize", "crates/voice", "crates/app"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+authors = ["Mishka (https://paracorp.io)"]
+license = "MIT"
+repository = "https://github.com/mishkaechoes/readsubtitles"
+homepage = "https://paracorp.io"
+description = "Reads the subtitles on your screen out loud, so a blind viewer can follow foreign-language film and television."
+# Not published to crates.io: it is a macOS application, not a library, and it
+# links frameworks that exist on no other platform.
+publish = false
+
+[workspace.dependencies]
+objc2 = "0.6.5"
+objc2-foundation = "0.3.2"
+objc2-core-foundation = "0.3.2"
+objc2-core-graphics = "0.3.2"
+objc2-vision = "0.3.2"
+screencapturekit = { version = "=11.1.2", features = ["macos_26_0"] }

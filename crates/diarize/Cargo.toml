@@ -1,0 +1,19 @@
+[package]
+name = "readsubtitles-diarize"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Pinned exactly, as with screencapturekit: this is a pre-1.0 release candidate
+# and the only maintained ONNX binding for Rust, so an unattended bump is a
+# risk rather than a convenience.
+# `tls-native` rather than rustls: it uses the system trust store, so there is
+# no second certificate bundle to keep current. Turning default features off
+# without naming a TLS backend leaves the binary downloader unable to compile.
+ort = { version = "=2.0.0-rc.15", default-features = false, features = ["std", "download-binaries", "tls-native"] }
+rustfft = "6.4.1"

@@ -1,0 +1,50 @@
+name: CI
+
+# macOS only, and not for convenience: this builds against ScreenCaptureKit,
+# Vision and AVFoundation, none of which exist anywhere else.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  check:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy
+          rustup default stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      # The tests that matter here are pure: cue timing, speaker clustering,
+      # pitch, voice assignment. None need a screen, a microphone or a model
+      # file, so they run unchanged on a headless runner.
+      - name: Test
+        run: cargo test --workspace
+
+      - name: Check the minimum supported Rust version still builds
+        run: |
+          rustup toolchain install 1.85 --profile minimal
+          cargo +1.85 check --workspace
