@@ -616,8 +616,13 @@ fn run_speech(
     {
         cast.set_default_voice(main);
     }
-    if verbose && multi_voice {
-        println!("{} voice(s) available for characters", cast.pool_size());
+    // Nothing is synthesised in a dry run, so there is no cast to report and
+    // saying "0 voices available" would describe a problem that is not there.
+    if verbose && multi_voice && speaker.is_some() {
+        match cast.pool_size() {
+            0 => println!("no extra voices installed, so every line will use the main voice"),
+            n => println!("{n} voice(s) available for characters"),
+        }
     }
     let mut tracker = CueTracker::new(CueConfig {
         settle,

@@ -12,6 +12,12 @@ This is the consumer-side version of what Dutch public broadcasting has called *
 It watches a rectangle of the screen, recognises the text in it on-device, and speaks each line once as it appears.
 Because it reads pixels rather than integrating with any particular service, it works on Netflix, YouTube, a local video file, or anything else that puts text on screen.
 
+![Captions being read, with a different voice per character](docs/demo-usage.gif)
+
+Each line is spoken as it appears, and characters are told apart: the speaker label gives `CARTOGRAPHER` a voice of their own, the dashes split one cue between two people, and the italics are read as narration. The times are real, from the recording.
+
+The scene is invented for the demo rather than captured from a film, so the recording carries nobody's viewing and nobody's copyrighted dialogue. `--dry-run` prints what it would say instead of speaking, because a GIF has no sound. Both recordings are reproducible: see [`docs/demo`](docs/demo).
+
 ## Two ways to read captions
 
 | | Read the screen | Read the browser |
@@ -45,7 +51,11 @@ cd readsubtitles
 ./install.sh
 ```
 
+![Installing in one command](docs/demo-install.gif)
+
 That is the whole thing. The script checks what is missing and offers to install it, creates the signing certificate, builds the app, puts it in `/Applications`, sets up the browser extension if you want it, and opens System Settings at the one switch that has to be flicked by hand.
+
+The recording above is a re-run on a machine that already had everything, which is why it finishes in seconds; a first install also fetches the Xcode tools and Rust, and the first build takes a few minutes.
 
 It speaks as it goes, because the person sitting at the machine is often the one who cannot read the terminal. Pass `--quiet` to stop that, or `--no-extension` to skip the browser half.
 

@@ -46,6 +46,7 @@ ask() {
   [ -t 0 ] || return 0
   printf '\n    %s [Y/n] ' "$prompt"
   read -r reply
+  printf '\n'
   case "$reply" in [nN]*) return 1 ;; *) return 0 ;; esac
 }
 
@@ -140,7 +141,8 @@ if [ "$SKIP_EXTENSION" = 0 ]; then
   if ask "Set up the browser extension?"; then
     ./bundle/make-extension.sh | sed 's/^/    /'
   else
-    info "skipped. Run ./bundle/make-extension.sh later if you change your mind."
+    info "Skipped. To add it later, run:"
+    info "  ./bundle/make-extension.sh"
   fi
 fi
 

@@ -40,6 +40,8 @@ struct Options {
     rate: f32,
     level: Level,
     dry_run: bool,
+    multi_voice: Option<bool>,
+    diarize: Option<bool>,
     debug_regions: bool,
     menubar: bool,
     save: bool,
@@ -71,6 +73,8 @@ impl Default for Options {
             rate: 1.0,
             level: Level::Accurate,
             dry_run: false,
+            multi_voice: None,
+            diarize: None,
             debug_regions: false,
             menubar: false,
             save: false,
@@ -127,6 +131,11 @@ VOICE
 OTHER
     --fast                 Use Vision's fast recognizer (~7ms vs ~35ms).
     --dry-run              Print cues instead of speaking them.
+    --multi-voice          Give different characters different voices.
+    --no-multi-voice       Read every line in the one voice.
+    --diarize              Tell voices apart by listening to the soundtrack.
+                           Costs about half a second of extra delay.
+    --no-diarize           Decide who is speaking from the subtitles alone.
     --debug-regions        Print each OCR region with its position.
     --fps <n>              Capture ceiling, default 8.
     --duration <seconds>   Stop after this long instead of running until Ctrl-C.
@@ -189,6 +198,13 @@ fn parse_args() -> Options {
             }
             "--fast" => o.level = Level::Fast,
             "--dry-run" => o.dry_run = true,
+            // The menu bar has had these two toggles all along; the CLI had
+            // no way to say either, so a scripted or headless run was stuck
+            // with whatever was last saved.
+            "--multi-voice" => o.multi_voice = Some(true),
+            "--no-multi-voice" => o.multi_voice = Some(false),
+            "--diarize" => o.diarize = Some(true),
+            "--no-diarize" => o.diarize = Some(false),
             "--debug-regions" => o.debug_regions = true,
             "--source" => {
                 let v = value();
@@ -694,8 +710,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         language: opts.language.clone(),
         level: opts.level,
         fps: opts.fps,
-        multi_voice: settings_now.multi_voice,
-        diarize: settings_now.diarize,
+        multi_voice: opts.multi_voice.unwrap_or(settings_now.multi_voice),
+        diarize: opts.diarize.unwrap_or(settings_now.diarize),
         listen_ahead: std::time::Duration::from_millis(settings_now.listen_ahead_ms),
         cast_overrides: settings_now.cast_overrides.clone(),
         debug_regions: opts.debug_regions,
