@@ -37,6 +37,13 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
+      # install.sh is how most people will meet this project, so a broken
+      # script is worse than a broken crate.
+      - name: Shell scripts
+        run: |
+          brew list shellcheck >/dev/null 2>&1 || brew install shellcheck
+          shellcheck install.sh bundle/*.sh
+
       - name: Format
         run: cargo fmt --all -- --check
 

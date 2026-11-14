@@ -27,13 +27,8 @@ Reading the screen is the default because it always works.
 Reading the browser is better when it applies, and it sidesteps the permission prompt entirely.
 Switch between them in the menu bar under **Source**, or with `--source screen` / `--source browser`.
 
-Set the browser source up once:
-
-```sh
-./bundle/make-extension.sh
-```
-
-It prints the four clicks needed to load the extension, which Chrome deliberately requires a human to do.
+`./install.sh` offers to set the browser source up for you.
+To add it later, run `./bundle/make-extension.sh`, which prints the four clicks Chrome deliberately requires a human to perform.
 
 ## It works on Netflix, and the DRM helps
 
@@ -44,37 +39,59 @@ The blanking is capture-side only. Anyone sitting watching the film sees it norm
 
 ## Install
 
-There is no installer or signed release. You build it, which takes about two minutes.
-
-**Requirements:** macOS 13 or later (developed and measured on macOS 27), Rust 1.92 or later, and the Xcode Command Line Tools.
-
 ```sh
-xcode-select --install                                     # if you do not have them
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh   # if you do not have Rust
-
 git clone https://github.com/mishkaechoes/readsubtitles.git
 cd readsubtitles
+./install.sh
+```
 
-./bundle/make-cert.sh     # once: a stable signing certificate. See below.
-./bundle/make-app.sh      # build and bundle
+That is the whole thing. The script checks what is missing and offers to install it, creates the signing certificate, builds the app, puts it in `/Applications`, sets up the browser extension if you want it, and opens System Settings at the one switch that has to be flicked by hand.
+
+It speaks as it goes, because the person sitting at the machine is often the one who cannot read the terminal. Pass `--quiet` to stop that, or `--no-extension` to skip the browser half.
+
+Re-run it any time. Every step checks whether it is already done, so after a `git pull` it just rebuilds.
+
+**You will be asked for two things**, and neither can be automated away:
+
+1. **The Xcode Command Line Tools**, if they are not already there. macOS shows its own download window.
+2. **Screen Recording permission.** macOS does not let an app request this for itself, so it has to be ticked in System Settings. The installer opens the right pane for you. A sighted helper should do this once, since the prompt is visual.
+
+Requirements, all of which the installer checks: macOS 13 or later, and Rust 1.92 or later.
+
+<details>
+<summary>Doing it by hand instead</summary>
+
+```sh
+xcode-select --install                                           # if needed
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh   # if needed
+
+./bundle/make-cert.sh                      # once: a stable signing certificate
+./bundle/make-app.sh                       # build and bundle
 cp -R target/ReadSubtitles.app /Applications/
+./bundle/make-extension.sh                 # optional: the browser source
 open /Applications/ReadSubtitles.app
 ```
 
-**Run `make-cert.sh` before the first build.** It creates one self-signed certificate in your login keychain and takes a minute. macOS keys the Screen Recording permission to an app's code signature, so without a stable certificate every rebuild looks like a brand new app and the permission is asked for again. That is a nuisance for a developer and a real obstacle for a blind user, who cannot see the dialog being raised.
+Then turn on Screen Recording in System Settings → Privacy & Security.
+
+**Run `make-cert.sh` before the first build.** macOS keys the Screen Recording permission to an app's code signature, so without a stable certificate every rebuild looks like a brand new app and the permission is asked for again. That is a nuisance for a developer and a real obstacle for a blind user, who cannot see the dialog being raised.
 
 **Bundling is not optional either.** ScreenCaptureKit is gated purely by TCC with no entitlement that grants access, macOS terminates an app that raises the Screen Recording prompt without `NSScreenCaptureUsageDescription` in its `Info.plist`, and on macOS 26 and later an unbundled binary does not even appear in the Screen Recording list.
 
-On first launch, grant **Screen Recording** in System Settings → Privacy & Security.
-A sighted helper should do this once, since the prompt is visual and cannot be answered by keyboard alone.
+</details>
 
-### Optional: read captions from the browser instead
+<details>
+<summary>Why there is no download-and-drag release</summary>
 
-```sh
-./bundle/make-extension.sh
-```
+It would be the obvious way to make this easier, and it is worse in practice.
 
-It generates `extension/config.js` with a token unique to your machine and prints the four clicks Chrome requires a human to perform. This source needs no Screen Recording permission at all, and gives exact text rather than OCR.
+An app downloaded from the internet is quarantined by Gatekeeper, and clearing that needs either a paid Apple Developer ID and notarization, or a trip through System Settings to approve a blocked app. The second is a visual, fiddly step, and it lands on exactly the person least able to do it.
+
+Building locally sidesteps the quarantine entirely, and the self-signed certificate gives something a notarized download would not: a signature that never changes, so the Screen Recording permission survives every update.
+
+If this ever gets a Developer ID, a signed and notarized release becomes the better answer and this section goes away.
+
+</details>
 
 ## Use
 

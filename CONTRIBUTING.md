@@ -17,10 +17,11 @@ So:
 ## Getting set up
 
 ```sh
-./bundle/make-cert.sh     # once: a stable signing certificate
-./bundle/make-app.sh      # build and bundle
+./install.sh              # everything: prerequisites, certificate, build, install
 cargo test --workspace
 ```
+
+`install.sh` is the same script users run, so running it is also how you find out you have broken it. For a tighter loop afterwards, `./bundle/make-app.sh` rebuilds and re-signs without the rest.
 
 macOS 13 or later, Rust 1.92 or later. `bundle/make-cert.sh` is worth the one-off minute: without a stable certificate, macOS re-prompts for Screen Recording after every single rebuild, because the permission is keyed to the code signature.
 
