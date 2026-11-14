@@ -136,6 +136,17 @@ impl Drop for CaptionServer {
 
 fn handle(mut stream: TcpStream, token: &str, tx: &Sender<Caption>, stats: &Stats) {
     let seen_at = Instant::now();
+
+    // The listener polls rather than blocking, so that stopping does not need a
+    // self-connection to wake it. On macOS and the BSDs an accepted socket
+    // inherits that non-blocking flag, and the inherited flag is a trap: the
+    // first read returns WouldBlock whenever the client's bytes have not landed
+    // yet, read_request reads that as a malformed request, and a perfectly good
+    // caption comes back 400 and is never spoken. It survives light testing
+    // because over loopback the data usually arrives first; it shows up on a
+    // loaded machine, which is exactly when someone is watching a film.
+    let _ = stream.set_nonblocking(false);
+
     let _ = stream.set_read_timeout(Some(CLIENT_TIMEOUT));
     let _ = stream.set_write_timeout(Some(CLIENT_TIMEOUT));
 
@@ -404,6 +415,73 @@ mod tests {
     fn the_health_check_answers_so_setup_fails_visibly() {
         let (server, _rx) = CaptionServer::start(0, "secret".into()).unwrap();
         assert!(post(server.port, "/health", "secret", "").contains("200"));
+    }
+
+    #[test]
+    fn a_request_that_arrives_late_is_still_accepted() {
+        // The accepted socket used to inherit the listener's non-blocking flag,
+        // so a client that connected before it sent anything was answered 400
+        // and its caption dropped. Connecting first and writing afterwards
+        // reproduces that deterministically, where the ordinary tests only hit
+        // it under load.
+        let (server, rx) = CaptionServer::start(0, "secret".into()).unwrap();
+        let mut s = TcpStream::connect(("127.0.0.1", server.port)).unwrap();
+
+        // Long enough that the server has certainly reached its first read.
+        std::thread::sleep(Duration::from_millis(250));
+
+        let body = r#"{"text":"spoken despite the pause"}"#;
+        let request = format!(
+            "POST /cue HTTP/1.1\r\nHost: localhost\r\n\
+             X-ReadSubtitles-Token: secret\r\n\
+             Content-Length: {}\r\nConnection: close\r\n\r\n{body}",
+            body.len()
+        );
+        s.write_all(request.as_bytes()).unwrap();
+        s.flush().unwrap();
+
+        let mut reply = String::new();
+        s.read_to_string(&mut reply).ok();
+        let status = reply.lines().next().unwrap_or_default();
+        assert!(status.contains("204"), "late request refused: {status}");
+
+        let cue = rx.recv_timeout(Duration::from_secs(2)).unwrap();
+        assert_eq!(cue.text, "spoken despite the pause");
+    }
+
+    #[test]
+    fn a_body_split_across_packets_is_read_whole() {
+        // The same failure in its other form: headers in one write, body in
+        // another, which is what a real client does when a caption is long.
+        let (server, rx) = CaptionServer::start(0, "secret".into()).unwrap();
+        let mut s = TcpStream::connect(("127.0.0.1", server.port)).unwrap();
+
+        let body = r#"{"text":"split across two writes"}"#;
+        s.write_all(
+            format!(
+                "POST /cue HTTP/1.1\r\nHost: localhost\r\n\
+                 X-ReadSubtitles-Token: secret\r\n\
+                 Content-Length: {}\r\nConnection: close\r\n\r\n",
+                body.len()
+            )
+            .as_bytes(),
+        )
+        .unwrap();
+        s.flush().unwrap();
+        std::thread::sleep(Duration::from_millis(150));
+        s.write_all(body.as_bytes()).unwrap();
+        s.flush().unwrap();
+
+        let mut reply = String::new();
+        s.read_to_string(&mut reply).ok();
+        assert!(
+            reply.lines().next().unwrap_or_default().contains("204"),
+            "split request refused: {reply}"
+        );
+        assert_eq!(
+            rx.recv_timeout(Duration::from_secs(2)).unwrap().text,
+            "split across two writes"
+        );
     }
 
     #[test]
