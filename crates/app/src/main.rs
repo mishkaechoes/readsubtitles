@@ -316,18 +316,18 @@ impl Options {
         if self.was_given("--bridge-port") && self.bridge_port > 0 {
             s.bridge_port = self.bridge_port;
         }
-        if self.was_given("--window") {
-            if let Target::WindowTitle(w) = &self.target {
-                s.window = Some(w.clone());
-            }
+        if self.was_given("--window")
+            && let Target::WindowTitle(w) = &self.target
+        {
+            s.window = Some(w.clone());
         }
-        if self.was_given("--display") {
-            if let Target::Display(d) = self.target {
-                s.display = d;
-                // A display and a window title are alternatives, so naming one
-                // has to clear the other or the window silently wins.
-                s.window = None;
-            }
+        if self.was_given("--display")
+            && let Target::Display(d) = self.target
+        {
+            s.display = d;
+            // A display and a window title are alternatives, so naming one
+            // has to clear the other or the window silently wins.
+            s.window = None;
         }
         if self.was_given("--band") {
             s.band = self.band;

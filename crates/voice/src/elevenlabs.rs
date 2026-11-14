@@ -322,8 +322,12 @@ fn api_message(body: &str) -> String {
 }
 
 fn pcm_to_samples(pcm: &[u8]) -> Vec<f32> {
-    pcm.chunks_exact(2)
-        .map(|b| f32::from(i16::from_le_bytes([b[0], b[1]])) / f32::from(i16::MAX))
+    // `as_chunks` hands back fixed-size arrays, so the pair is indexed at
+    // compile time and a trailing odd byte is dropped rather than panicking.
+    pcm.as_chunks::<2>()
+        .0
+        .iter()
+        .map(|b| f32::from(i16::from_le_bytes(*b)) / f32::from(i16::MAX))
         .collect()
 }
 
