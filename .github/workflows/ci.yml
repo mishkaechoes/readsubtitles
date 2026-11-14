@@ -9,13 +9,18 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTFLAGS: -D warnings
+  # Do NOT set RUSTFLAGS here. Cargo treats the environment variable as a
+  # replacement for the rustflags in .cargo/config.toml, not an addition to
+  # them, so setting it drops the Swift runtime search path and rpath that
+  # screencapturekit's Swift shim needs. The binaries then build cleanly and
+  # abort at launch with "Library not loaded: @rpath/libswift_Concurrency.dylib".
+  # Warnings are denied on the clippy invocation instead, where it is scoped.
 
 jobs:
   check:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Rust
         run: |
@@ -23,7 +28,7 @@ jobs:
           rustup default stable
 
       - name: Cache cargo
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry

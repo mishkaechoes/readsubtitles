@@ -3,6 +3,12 @@
 # a full Xcode install. On a Command Line Tools-only machine the Swift runtime
 # lives elsewhere, so point the linker at it and add the OS Swift runtime to
 # the rpath so the binary can find libswift_Concurrency.dylib at launch.
+# Careful: setting the RUSTFLAGS environment variable REPLACES the rustflags
+# below rather than adding to them, so anything that exports it (a CI job, a
+# shell profile, a `RUSTFLAGS=... cargo build`) silently removes both of these.
+# The failure does not look like a linker problem: with Command Line Tools only
+# the build fails on missing Swift symbols, and with full Xcode it links and
+# then aborts at launch with "Library not loaded: @rpath/libswift_Concurrency".
 [target.aarch64-apple-darwin]
 rustflags = [
   "-L", "/Library/Developer/CommandLineTools/usr/lib/swift/macosx",
