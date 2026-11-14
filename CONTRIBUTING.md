@@ -22,7 +22,7 @@ So:
 cargo test --workspace
 ```
 
-macOS 13 or later, Rust 1.85 or later. `bundle/make-cert.sh` is worth the one-off minute: without a stable certificate, macOS re-prompts for Screen Recording after every single rebuild, because the permission is keyed to the code signature.
+macOS 13 or later, Rust 1.92 or later. `bundle/make-cert.sh` is worth the one-off minute: without a stable certificate, macOS re-prompts for Screen Recording after every single rebuild, because the permission is keyed to the code signature.
 
 ## Before you open a pull request
 

@@ -51,5 +51,5 @@ jobs:
 
       - name: Check the minimum supported Rust version still builds
         run: |
-          rustup toolchain install 1.85 --profile minimal
-          cargo +1.85 check --workspace
+          rustup toolchain install 1.92 --profile minimal
+          cargo +1.92 check --workspace

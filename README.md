@@ -46,7 +46,7 @@ The blanking is capture-side only. Anyone sitting watching the film sees it norm
 
 There is no installer or signed release. You build it, which takes about two minutes.
 
-**Requirements:** macOS 13 or later (developed and measured on macOS 27), Rust 1.85 or later, and the Xcode Command Line Tools.
+**Requirements:** macOS 13 or later (developed and measured on macOS 27), Rust 1.92 or later, and the Xcode Command Line Tools.
 
 ```sh
 xcode-select --install                                     # if you do not have them
